@@ -8,7 +8,7 @@ from config import settings
 
 logger = logging.getLogger("extract_loyalty.bigquery")
 
-# Esquemas de BigQuery según el estándar extraído
+# Esquemas de BigQuery estandarizados
 TABLE_SCHEMAS: Dict[str, List[bigquery.SchemaField]] = {
     "Accounts": [
         bigquery.SchemaField("AccountID", "INTEGER", mode="NULLABLE"),
@@ -34,8 +34,8 @@ TABLE_SCHEMAS: Dict[str, List[bigquery.SchemaField]] = {
         bigquery.SchemaField("CashOut", "FLOAT", mode="NULLABLE"),
         bigquery.SchemaField("CashAvailable", "FLOAT", mode="NULLABLE"),
         bigquery.SchemaField("AccountTypeID", "FLOAT", mode="NULLABLE"),
-        bigquery.SchemaField("CreateDate", "STRING", mode="NULLABLE"),
-        bigquery.SchemaField("UpdateDate", "STRING", mode="NULLABLE"),
+        bigquery.SchemaField("CreateDate", "TIMESTAMP", mode="NULLABLE"),
+        bigquery.SchemaField("UpdateDate", "TIMESTAMP", mode="NULLABLE"),
     ],
     "Bonus": [
         bigquery.SchemaField("BonusID", "INTEGER", mode="NULLABLE"),
@@ -131,8 +131,8 @@ TABLE_SCHEMAS: Dict[str, List[bigquery.SchemaField]] = {
         bigquery.SchemaField("PointsExpired", "FLOAT", mode="NULLABLE"),
         bigquery.SchemaField("PointsLost", "INTEGER", mode="NULLABLE"),
         bigquery.SchemaField("PointsAvailable", "FLOAT", mode="NULLABLE"),
-        bigquery.SchemaField("CreateDate", "STRING", mode="NULLABLE"),
-        bigquery.SchemaField("UpdateDate", "STRING", mode="NULLABLE"),
+        bigquery.SchemaField("CreateDate", "TIMESTAMP", mode="NULLABLE"),
+        bigquery.SchemaField("UpdateDate", "TIMESTAMP", mode="NULLABLE"),
         bigquery.SchemaField("UpdateProcessID", "INTEGER", mode="NULLABLE"),
     ],
     "RewardRedemptions": [
@@ -152,7 +152,7 @@ TABLE_SCHEMAS: Dict[str, List[bigquery.SchemaField]] = {
         bigquery.SchemaField("Status", "STRING", mode="NULLABLE"),
         bigquery.SchemaField("QuantityStock", "INTEGER", mode="NULLABLE"),
         bigquery.SchemaField("QuantityRedempts", "INTEGER", mode="NULLABLE"),
-        bigquery.SchemaField("CreateDate", "STRING", mode="NULLABLE"),
+        bigquery.SchemaField("CreateDate", "TIMESTAMP", mode="NULLABLE"),
         bigquery.SchemaField("UpdateDate", "INTEGER", mode="NULLABLE"),
     ],
     "SubEntity": [
@@ -195,6 +195,28 @@ def ensure_dataset_exists(client: bigquery.Client) -> None:
         client.create_dataset(dataset, timeout=30)
         logger.info(f"Dataset {dataset_ref} creado exitosamente en {settings.BQ_LOCATION}.")
 
+def align_dataframe_types(df: pd.DataFrame, schema: List[bigquery.SchemaField]) -> pd.DataFrame:
+    """Ajusta los tipos de datos del DataFrame de acuerdo con el esquema de BigQuery."""
+    df_clean = df.copy()
+    for field in schema:
+        col = field.name
+        if col not in df_clean.columns:
+            continue
+        
+        field_type = field.field_type.upper()
+        
+        if field_type == "TIMESTAMP":
+            df_clean[col] = pd.to_datetime(df_clean[col], errors='coerce')
+        elif field_type == "STRING":
+            # Convert non-null to string, leave None as None
+            df_clean[col] = df_clean[col].apply(lambda x: str(x) if pd.notnull(x) else None)
+        elif field_type in ("INTEGER", "INT64"):
+            df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce').astype('Int64')
+        elif field_type in ("FLOAT", "FLOAT64", "NUMERIC"):
+            df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
+            
+    return df_clean
+
 def load_dataframe_to_bigquery(table_name: str, df: pd.DataFrame, write_disposition: str = "WRITE_TRUNCATE") -> int:
     """Carga un DataFrame de pandas a la tabla correspondiente de BigQuery."""
     client = get_bigquery_client()
@@ -203,6 +225,9 @@ def load_dataframe_to_bigquery(table_name: str, df: pd.DataFrame, write_disposit
     table_id = f"{settings.GCP_PROJECT_ID}.{settings.BQ_DATASET_ID}.{table_name}"
     schema = TABLE_SCHEMAS.get(table_name)
     
+    # Alinear tipos de datos
+    df_to_load = align_dataframe_types(df, schema) if schema else df
+    
     # Configurar el trabajo de carga
     job_config = bigquery.LoadJobConfig(
         schema=schema,
@@ -210,8 +235,8 @@ def load_dataframe_to_bigquery(table_name: str, df: pd.DataFrame, write_disposit
         autodetect=False if schema else True
     )
     
-    logger.info(f"Iniciando carga de {len(df)} registros a BigQuery: {table_id} (Modo: {write_disposition})")
-    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+    logger.info(f"Iniciando carga de {len(df_to_load)} registros a BigQuery: {table_id} (Modo: {write_disposition})")
+    job = client.load_table_from_dataframe(df_to_load, table_id, job_config=job_config)
     job.result()  # Esperar que complete el job
     
     destination_table = client.get_table(table_id)

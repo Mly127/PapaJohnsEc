@@ -51,19 +51,31 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
   3. Autenticación exitosa con Google Cloud Platform (ADC con `melissah@loymark.com`).
   4. Conexión al proyecto y dataset de referencia: **`timhorton-loyaltymx.Loyalty`** y exportación de DDLs.
   5. **Conexión exitosa a SQL Server origen (`192.168.20.68 / SBPAPAJOHNS`)** y validación de las 9 tablas core.
-  6. **Identificación de Proyecto GCP**: `papajohnsec` (Name: `PapaJohnsEC`).
-  7. **Construcción de la Cloud Function (Gen2)** en [`functions/extract_loyalty/`](./functions/extract_loyalty/):
-     * `config.py`: Variables de entorno y ajustes.
-     * `database.py`: Extracción modular desde SQL Server con soporte `pymssql`/`pyodbc`.
-     * `bigquery_loader.py`: Carga y validación estricta de esquemas hacia BigQuery.
-     * `main.py`: Endpoint HTTP Functions Framework.
-     * `requirements.txt` y `.env.example`.
-  8. **Construcción de las 8 Vistas Analíticas estándar** en [`sql/views/`](./sql/views/) adaptadas para Papa John's Ecuador y zona horaria `America/Guayaquil`.
+  6. **Dataset Creado en BigQuery**: `papajohnsec.papajohns_loyalty_ec` (Location: `US`).
+  7. **Construcción y Ejecución del Pipeline de Migración**:
+     * 9 tablas sincronizadas exitosamente desde SQL Server a BigQuery con concordancia exacta de registros:
+       - `Accounts`: 3,372 filas
+       - `Bonus`: 304 filas
+       - `RetailTransactionCash`: 1 fila
+       - `RetailTransactionDetails`: 1,027 filas
+       - `RetailTransactionHeaders`: 858 filas
+       - `RewardRedemptions`: 0 filas
+       - `SRewards`: 3 filas
+       - `SubEntity`: 31 filas
+       - `TransactionTypes`: 2 filas
+  8. **Creación y Validación de las 8 Vistas Analíticas estándar** en `papajohnsec.papajohns_loyalty_ec`:
+     * `vw_Clientes` (3,372 registros)
+     * `vw_ClientesDetalles` (866 registros)
+     * `vw_Transacciones` (858 registros)
+     * `vw_Puntos` (858 registros)
+     * `vw_PuntosBono` (304 registros)
+     * `vw_Canjes` (0 registros)
+     * `vw_Cash` (1 registro)
+     * `vw_wallet_txn_base` (1 registro)
   9. **Automatización de Despliegue y Programación** en [`scripts/deploy_function.ps1`](./scripts/deploy_function.ps1), [`scripts/deploy_function.sh`](./scripts/deploy_function.sh) y [`scripts/create_views.py`](./scripts/create_views.py).
 * **Próximos pasos inmediatos:**
-  * Solicitar/Asignar rol `roles/bigquery.admin` o `roles/bigquery.dataEditor` a `melissah@loymark.com` en el proyecto `papajohnsec` (o crear el dataset `papajohns_loyalty_ec`).
-  * Ejecutar el despliegue de la Cloud Function y Cloud Scheduler en GCP.
-  * Conectar el dataset resultante a Looker para comenzar la construcción de los tableros.
+  * Desplegar la Cloud Function Gen2 en GCP (`extract-loyalty-sql-to-bq`) y configurar el Cloud Scheduler para la ingesta recurrente (ej. diaria a las 03:00 AM).
+  * Conectar el dataset `papajohnsec.papajohns_loyalty_ec` a Looker Studio / Looker y comenzar el diseño de los dashboards de Papa John's Ecuador.
 
 ---
 
