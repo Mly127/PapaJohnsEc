@@ -43,15 +43,17 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
 
 ### 🗓️ Sesión 1 — 18 de Septiembre de 2026
 * **Definición del Proyecto:**
-  * Pipeline completo: SQL Server -> Google Cloud Functions -> Google BigQuery -> Looker.
+  * Pipeline completo: SQL Server -> Google Cloud Functions -> Google BigQuery -> Looker para Papa John's Ecuador.
 * **Acciones realizadas:**
   1. Inicialización de Git local y configuración de repositorio remoto en GitHub (`Mly127/PapaJohnsEc`).
   2. Creación del archivo de memoria de proyecto (`MEMORY.md`), `.gitignore` y `README.md`.
-  3. Definición formal de arquitectura, objetivos y fases del roadmap.
+  3. Autenticación exitosa con Google Cloud Platform (ADC).
+  4. Conexión al proyecto y dataset de referencia: **`timhorton-loyaltymx.Loyalty`**.
+  5. Inspección y extracción completa de las 9 tablas base y 8 vistas analíticas hacia [`references/timhortons_loyalty_structure.sql`](./references/timhortons_loyalty_structure.sql).
 * **Próximos pasos inmediatos:**
-  * Diseñar la estructura de carpetas del repositorio para Cloud Functions, scripts SQL y esquemas de BigQuery.
-  * Identificar tablas origen de SQL Server, frecuencia de carga y tipo de sincronización (Full Load vs Incremental/Delta).
-  * Configurar variables de entorno y plantilla de conexión a SQL Server y BigQuery.
+  * Analizar la estructura de tablas y vistas de `Loyalty` para adaptar el modelo de datos a Papa John's Ecuador.
+  * Diseñar la Cloud Function de extracción desde SQL Server hacia BigQuery.
+  * Definir dataset destino para Papa John's Ecuador.
 
 ---
 
