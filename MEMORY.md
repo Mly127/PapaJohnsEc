@@ -48,24 +48,22 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
 * **Acciones realizadas:**
   1. Inicialización de Git local y configuración de repositorio remoto en GitHub (`Mly127/PapaJohnsEc`).
   2. Creación del archivo de memoria de proyecto (`MEMORY.md`), `.gitignore` y `README.md`.
-  3. Autenticación exitosa con Google Cloud Platform (ADC).
-  4. Conexión al proyecto y dataset de referencia: **`timhorton-loyaltymx.Loyalty`**.
-  5. Inspección y extracción completa de las 9 tablas base y 8 vistas analíticas hacia [`references/timhortons_loyalty_structure.sql`](./references/timhortons_loyalty_structure.sql).
-  6. **Conexión exitosa a SQL Server origen (`192.168.20.68 / SBPAPAJOHNS`)**:
-     * Verificación y mapeo de tablas core de lealtad:
-       - `dbo.Accounts` (3,372 filas, 38 cols)
-       - `dbo.RetailTransactionHeaders` (858 filas, 39 cols)
-       - `dbo.RetailTransactionDetails` (1,027 filas, 28 cols)
-       - `dbo.Bonus` (304 filas, 10 cols)
-       - `dbo.SubEntities` (31 filas, 10 cols)
-       - `dbo.SRewards` (3 filas, 20 cols) + `dbo.Benefits` (descripciones de premios)
-       - `dbo.CashMovements` (1 fila, 22 cols)
-       - `dbo.RewardRedemptions` (0 filas, 9 cols)
-       - `dbo.TransactionTypes` (2 filas, 7 cols)
+  3. Autenticación exitosa con Google Cloud Platform (ADC con `melissah@loymark.com`).
+  4. Conexión al proyecto y dataset de referencia: **`timhorton-loyaltymx.Loyalty`** y exportación de DDLs.
+  5. **Conexión exitosa a SQL Server origen (`192.168.20.68 / SBPAPAJOHNS`)** y validación de las 9 tablas core.
+  6. **Identificación de Proyecto GCP**: `papajohnsec` (Name: `PapaJohnsEC`).
+  7. **Construcción de la Cloud Function (Gen2)** en [`functions/extract_loyalty/`](./functions/extract_loyalty/):
+     * `config.py`: Variables de entorno y ajustes.
+     * `database.py`: Extracción modular desde SQL Server con soporte `pymssql`/`pyodbc`.
+     * `bigquery_loader.py`: Carga y validación estricta de esquemas hacia BigQuery.
+     * `main.py`: Endpoint HTTP Functions Framework.
+     * `requirements.txt` y `.env.example`.
+  8. **Construcción de las 8 Vistas Analíticas estándar** en [`sql/views/`](./sql/views/) adaptadas para Papa John's Ecuador y zona horaria `America/Guayaquil`.
+  9. **Automatización de Despliegue y Programación** en [`scripts/deploy_function.ps1`](./scripts/deploy_function.ps1), [`scripts/deploy_function.sh`](./scripts/deploy_function.sh) y [`scripts/create_views.py`](./scripts/create_views.py).
 * **Próximos pasos inmediatos:**
-  * Definir dataset destino en BigQuery para Papa John's Ecuador (ej. `loymarkperformancedata.papajohns_loyalty_ec` o en proyecto asignado).
-  * Construir el código modular de la Cloud Function de extracción SQL Server -> BigQuery.
-  * Replicar las 8 vistas analíticas estándar adaptadas a las tablas de Papa John's Ecuador.
+  * Solicitar/Asignar rol `roles/bigquery.admin` o `roles/bigquery.dataEditor` a `melissah@loymark.com` en el proyecto `papajohnsec` (o crear el dataset `papajohns_loyalty_ec`).
+  * Ejecutar el despliegue de la Cloud Function y Cloud Scheduler en GCP.
+  * Conectar el dataset resultante a Looker para comenzar la construcción de los tableros.
 
 ---
 
