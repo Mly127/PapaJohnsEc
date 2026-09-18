@@ -51,10 +51,21 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
   3. Autenticación exitosa con Google Cloud Platform (ADC).
   4. Conexión al proyecto y dataset de referencia: **`timhorton-loyaltymx.Loyalty`**.
   5. Inspección y extracción completa de las 9 tablas base y 8 vistas analíticas hacia [`references/timhortons_loyalty_structure.sql`](./references/timhortons_loyalty_structure.sql).
+  6. **Conexión exitosa a SQL Server origen (`192.168.20.68 / SBPAPAJOHNS`)**:
+     * Verificación y mapeo de tablas core de lealtad:
+       - `dbo.Accounts` (3,372 filas, 38 cols)
+       - `dbo.RetailTransactionHeaders` (858 filas, 39 cols)
+       - `dbo.RetailTransactionDetails` (1,027 filas, 28 cols)
+       - `dbo.Bonus` (304 filas, 10 cols)
+       - `dbo.SubEntities` (31 filas, 10 cols)
+       - `dbo.SRewards` (3 filas, 20 cols) + `dbo.Benefits` (descripciones de premios)
+       - `dbo.CashMovements` (1 fila, 22 cols)
+       - `dbo.RewardRedemptions` (0 filas, 9 cols)
+       - `dbo.TransactionTypes` (2 filas, 7 cols)
 * **Próximos pasos inmediatos:**
-  * Analizar la estructura de tablas y vistas de `Loyalty` para adaptar el modelo de datos a Papa John's Ecuador.
-  * Diseñar la Cloud Function de extracción desde SQL Server hacia BigQuery.
-  * Definir dataset destino para Papa John's Ecuador.
+  * Definir dataset destino en BigQuery para Papa John's Ecuador (ej. `loymarkperformancedata.papajohns_loyalty_ec` o en proyecto asignado).
+  * Construir el código modular de la Cloud Function de extracción SQL Server -> BigQuery.
+  * Replicar las 8 vistas analíticas estándar adaptadas a las tablas de Papa John's Ecuador.
 
 ---
 
