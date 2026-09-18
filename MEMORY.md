@@ -35,6 +35,7 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
 | :--- | :--- | :--- | :--- |
 | 2026-09-18 | Inicialización del repositorio y memoria | Establecer control de versiones con Git y trazabilidad desde el día 1 | Aprobado |
 | 2026-09-18 | Pipeline SQL Server -> BigQuery vía Cloud Functions | Enfoque serverless, escalable y modular con ejecución programada por Cloud Scheduler | Aprobado |
+| 2026-09-18 | Replicación 1:1 de vistas analíticas de Tim Hortons Loyalty | Estandarización institucional del modelo de lealtad para Papa John's Ecuador según directriz | Aprobado |
 | 2026-09-18 | Capa analítica en Looker conectada a BigQuery | Centralizar métricas de negocio de Papa John's Ecuador con alto rendimiento de consulta | Aprobado |
 
 ---
