@@ -97,9 +97,25 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
      * `vw_wallet_txn_base`: 1 fila
   6. **Código de Cloud Function y Automatización:**
      * Código modular en `functions/extract_loyalty/` (`main.py`, `database.py`, `bigquery_loader.py`, `config.py`, `requirements.txt`).
-     * Scripts de despliegue en `scripts/deploy_function.ps1`, `scripts/deploy_function.sh` y `scripts/create_views.py`.
+     * Scripts de despliegue en `scripts/deploy_function.ps1`, `scripts/deploy_function.sh`, `scripts/create_views.py` y `scripts/sync_data.py`.
   7. **Looker Studio:**
      * Documentación y validación del procedimiento de clonación 1:1 desde el reporte de Tim Hortons (`c6e89780-1db6-4a4e-948c-dbaa6f0839d5`).
+
+### 🗓️ Sesión 2 — 21 de Septiembre de 2026
+* **Sincronización y Actualización de Datos:**
+  * Reautenticación exitosa de ADC con `melissah@loymark.com` y asignación de quota project a `papajohnsec`.
+  * Creación del script operacional [`scripts/sync_data.py`](./scripts/sync_data.py).
+  * Ejecución exitosa de la sincronización completa (tiempo total: 68.54s):
+    * `Accounts`: 3,373 filas (+1 nuevo registro)
+    * `Bonus`: 305 filas (+1 nuevo bono)
+    * `RetailTransactionCash`: 1 fila
+    * `RetailTransactionDetails`: 1,027 filas
+    * `RetailTransactionHeaders`: 858 filas
+    * `RewardRedemptions`: 0 filas
+    * `SRewards`: 3 filas
+    * `SubEntity`: 31 filas
+    * `TransactionTypes`: 2 filas
+  * Las 8 vistas analíticas en BigQuery quedan automáticamente actualizadas con la nueva información.
 
 ---
 
