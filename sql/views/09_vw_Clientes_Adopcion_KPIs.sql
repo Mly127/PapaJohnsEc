@@ -1,7 +1,7 @@
 -- ==========================================================
--- Vista: vw_Clientes_Adopcion_KPIs
--- Proposito: Consolidar adopcion del programa, recurrencia,
---            frecuencia, ticket promedio, vigencia y canjes
+-- Vista: vw_Clientes_Adopcion_KPIs (UNIFICADA)
+-- Proposito: Consolidar todas las metricas de Resumen General,
+--            adopcion, recurrencia, frecuencia, ticket y vigencia
 -- Dataset: papajohnsec.papajohns_loyalty_ec
 -- ==========================================================
 CREATE OR REPLACE VIEW `papajohnsec.papajohns_loyalty_ec.vw_Clientes_Adopcion_KPIs` AS
@@ -28,17 +28,27 @@ REDEMPTIONS AS (
   GROUP BY RR.AccountID
 )
 SELECT 
+  -- 1. Identificacion del Cliente
   A.AccountID,
   A.AccountNumber AS NumeroCuenta,
+  A.FirstName AS Nombre,
+  A.LastName AS Apellido,
   CONCAT(IFNULL(A.FirstName, ''), ' ', IFNULL(A.LastName, '')) AS NombreCompleto,
   A.Email,
   A.MobilePhone AS Telefono,
+  A.Status AS Estatus,
   DATE(A.CreateDate) AS FechaRegistro,
+  DATE(A.CreateDate) AS FechaCreacion,
   EXTRACT(YEAR FROM A.CreateDate) AS AnioRegistro,
   EXTRACT(MONTH FROM A.CreateDate) AS MesRegistro,
   DATE_DIFF(CURRENT_DATE(), DATE(A.CreateDate), DAY) AS DiasDesdeRegistro,
+
+  -- 2. Actividad General (Para las tarjetas superiores de clientes)
+  IF(DATE(TX.UltimaCompra) >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH), 'Con Actividad', 'Sin Actividad') AS EstatusActividad,
+  IF(A.PointsAvailable > 0, 'Con Puntos', 'Sin Puntos') AS EstatusPuntos,
+  IF(A.CashAvailable > 0, 'Con Cash', 'Sin Cash') AS EstatusCash,
   
-  -- Segmentacion y Recurrencia
+  -- 3. Segmentacion y Recurrencia
   IFNULL(TX.TotalCompras, 0) AS FrecuenciaCompras,
   CASE 
     WHEN IFNULL(TX.TotalCompras, 0) = 0 THEN 'Registrado Sin Compra'
@@ -49,20 +59,23 @@ SELECT
   
   IF(IFNULL(TX.TotalCompras, 0) > 1, 'Recurrente (2+)', IF(IFNULL(TX.TotalCompras, 0) = 1, 'Primera Compra', 'Sin Compra')) AS TipoRecurrencia,
   
-  -- Transaccionalidad y Ticket Promedio
+  -- 4. Transaccionalidad y Ticket Promedio
   ROUND(IFNULL(TX.GastoTotal, 0), 2) AS MontoTotalComprado,
   ROUND(IFNULL(TX.TicketPromedio, 0), 2) AS TicketPromedio,
   DATE(TX.PrimeraCompra) AS FechaPrimeraCompra,
   DATE(TX.UltimaCompra) AS FechaUltimaCompra,
   DATE_DIFF(CURRENT_DATE(), DATE(TX.UltimaCompra), DAY) AS DiasUltimaCompra,
   
-  -- Puntos y Vigencia
+  -- 5. Datos de Puntos (Para las tarjetas superiores de puntos)
   A.PointsAccumulated AS PuntosAcumulados,
-  A.PointsAvailable AS PuntosDisponibles,
-  A.PointsRedeemed AS PuntosRedimidos,
-  A.PointsExpired AS PuntosExpirados,
   A.PointsBonus AS PuntosBono,
+  A.PointsRedeemed AS PuntosRedimidos,
+  A.PointsAvailable AS PuntosDisponibles,
+  A.PointsExpired AS PuntosExpirados,
+  A.PointsInTransit AS PuntosEnTransito,
+  A.PointsLost AS PuntosPerdidos,
   
+  -- 6. Vigencia de Puntos
   CASE 
     WHEN A.PointsAvailable > 0 AND (TX.UltimaCompra IS NULL OR DATE_DIFF(CURRENT_DATE(), DATE(TX.UltimaCompra), DAY) <= 150) THEN 'Puntos Vigentes'
     WHEN A.PointsAvailable > 0 AND DATE_DIFF(CURRENT_DATE(), DATE(TX.UltimaCompra), DAY) > 150 THEN 'Proximos a Vencer (6 meses)'
@@ -70,13 +83,15 @@ SELECT
     ELSE 'Sin Puntos'
   END AS EstadoVigenciaPuntos,
   
-  -- Canjes
+  -- 7. Canjes de Catalogo
   IFNULL(R.TotalCanjes, 0) AS TotalCanjes,
   IFNULL(R.PuntosCanjeadosTotal, 0) AS PuntosCanjeados,
   
-  -- Cash / Wallet
+  -- 8. Cash / Wallet
   A.CashAvailable AS CashDisponible,
+  A.CashIn AS CashDepositado,
   A.CashIn AS CashIngresado,
+  A.CashOut AS CashCambiado,
   A.CashOut AS CashGastado
 
 FROM `papajohnsec.papajohns_loyalty_ec.Accounts` A
