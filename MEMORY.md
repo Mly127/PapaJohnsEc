@@ -1,43 +1,53 @@
 # 🧠 Memoria del Proyecto - PapaJohnsEc
 
-Documento de seguimiento, decisiones técnicas, contexto y registro de avances para el proyecto **PapaJohnsEc**.
+Documento de seguimiento, decisiones técnicas, contexto, métricas y registro de avances para el proyecto **PapaJohnsEc**.
 
 ---
 
 ## 📌 1. Información General del Proyecto
 * **Nombre del Proyecto:** PapaJohnsEc
 * **Propietario / Responsable:** Melissa Herrera (Mly127)
-* **Fecha de Inicio:** 18 de septiembre de 2026
+* **Fecha de Inicio:** 18 de septiembre de 2026 (12:18 PM)
 * **Repositorio Remoto:** [https://github.com/Mly127/PapaJohnsEc](https://github.com/Mly127/PapaJohnsEc)
 * **Rama Principal:** `main`
 
 ---
 
-## 🎯 2. Objetivos y Alcance
-* **Objetivo Principal:** Diseñar e implementar un pipeline automatizado de datos para **Papa John's Ecuador**, migrando información desde Microsoft SQL Server hacia Google BigQuery, orquestando las cargas mediante Google Cloud Functions y Cloud Scheduler, y replicando los tableros analíticos en Looker Studio a partir del modelo institucional de lealtad.
-* **Componentes Clave:**
-  1. **Extracción y Carga (ETL/ELT):** Extracción de tablas/vistas de SQL Server (`SBPAPAJOHNS`) y carga directa hacia Google BigQuery (`papajohnsec.papajohns_loyalty_ec`).
-  2. **Automatización Serverless & Scripts:** Google Cloud Functions Gen2 (Python 3.11) y scripts Python de extracción modular.
-  3. **Orquestación y Horarios:** Google Cloud Scheduler para disparar las Cloud Functions o jobs de sincronización diaria.
-  4. **Capa de Vistas Analíticas:** 8 vistas SQL estándar en BigQuery con zona horaria de Ecuador (`America/Guayaquil`).
-  5. **Visualización y Analítica:** Tablero en Looker Studio clonado y mapeado a partir del dashboard de lealtad de Tim Hortons.
-* **Stack Tecnológico:**
-  * **Origen:** SQL Server (`192.168.20.68:1433 / SBPAPAJOHNS`) / `pymssql` / `pyodbc`
-  * **Destino:** Google BigQuery (`google-cloud-bigquery`, `pyarrow`, `pandas`)
-  * **Cómputo / Serverless:** Google Cloud Functions (Gen2 / Python 3.11)
-  * **Orquestación:** Google Cloud Scheduler (`0 3 * * *` / America/Guayaquil)
-  * **Visualización:** Looker Studio
+## ⏱️ 2. Resumen de Dedicación y Tiempos
+
+* **Total de Días Hábiles:** 4 días
+* **Promedio Diario:** ~4.5 horas / día
+* **Tiempo Total Invertido:** ~18 horas de trabajo efectivo
+
+| Fecha | Jornada | Tiempo Dedicado | Principales Hitos Desarrollados |
+| :--- | :---: | :---: | :--- |
+| **Día 1: Vie 18 Sept** | 12:18 PM – 5:00 PM | **~4.5 horas** | • Conexión a SQL Server `SBPAPAJOHNS`.<br>• Creación del pipeline ETL y carga inicial de las 9 tablas a BigQuery.<br>• Creación y despliegue de las primeras 8 vistas analíticas. |
+| **Fin de semana** | *19 y 20 Sept* | *Descanso* | *(Sin actividad)* |
+| **Día 2: Lun 21 Sept** | 10:00 AM – 2:30 PM | **~4.5 horas** | • Creación del script operacional [`sync_data.py`](./scripts/sync_data.py).<br>• Creación de la vista [`09_vw_Clientes_Adopcion_KPIs.sql`](./sql/views/09_vw_Clientes_Adopcion_KPIs.sql) para recurrencia y vigencia.<br>• Conexión inicial y mapeo de fuentes en Looker Studio. |
+| **Día 3: Mar 22 Sept** | 10:00 AM – 4:00 PM | **~5.5 horas** | • Configuración de parámetros y métricas de **ROAS** y formato condicional.<br>• Unificación de la vista maestra de clientes y puntos.<br>• Diagnóstico de páginas y diseño de la página **Base de Clientes & Vigencia**.<br>• Revisión visual de las pantallas del dashboard. |
+| **Día 4: Mié 23 Sept** | 8:15 AM – 12:25 PM | **~4.0 horas** | • Sincronización exitosa SQL Server ➔ BigQuery (3.373 cuentas).<br>• Ajustes visuales de gráficos combinados/barras por sucursal.<br>• Pulido final de anchos, tipografías y encabezados de la tabla de clientes. |
 
 ---
 
-## 🔑 3. Configuración de Entornos y Accesos
+## 🎯 3. Objetivos y Alcance
+* **Objetivo Principal:** Diseñar e implementar un pipeline automatizado de datos para **Papa John's Ecuador**, migrando información desde Microsoft SQL Server hacia Google BigQuery, orquestando las cargas mediante scripts Python y Cloud Functions, y creando un tablero analítico en Looker Studio adaptado a las necesidades de negocio del cliente.
+* **Requerimientos de Negocio del Dashboard:**
+  1. 🔄 **Frecuencia de visita / compra** (Promedio de compras por cliente).
+  2. 👥 **Recurrencia de clientes** (Clientes Nuevos vs Recurrentes vs Sin Compra).
+  3. 📍 **Participación por Sucursal** (Ventas y volumen por tienda).
+  4. 🎁 **Canjes y Redenciones del programa** (Puntos ganados vs redimidos).
+  5. 💵 **Ticket promedio** (Gasto promedio por transacción).
+  6. 📈 **Retorno publicitario (ROAS)** (Fórmula interactiva con control de presupuesto publicitario).
+  7. 📋 **Base de clientes y Vigencia** (Tabla detallada con saldos de puntos, vigencia, compras, filtros y buscador).
+
+---
+
+## 🔑 4. Configuración de Entornos y Accesos
 
 ### A. Base de Datos Origen (SQL Server)
-* **Host:** `192.168.20.68`
-* **Puerto:** `1433`
+* **Host:** `192.168.20.68` | **Puerto:** `1433`
 * **Base de Datos:** `SBPAPAJOHNS`
-* **Usuario:** `upapajohns`
-* **Contraseña:** `Pla!npart17`
+* **Usuario:** `upapajohns` | **Contraseña:** `Pla!npart17`
 
 ### B. Google Cloud Platform (GCP)
 * **Usuario GCP:** `melissah@loymark.com`
@@ -45,102 +55,56 @@ Documento de seguimiento, decisiones técnicas, contexto y registro de avances p
 * **BigQuery Dataset ID:** `papajohns_loyalty_ec` (Ubicación: `US`)
 * **Zona Horaria del Modelo:** `America/Guayaquil` (UTC-5)
 
-### C. Referencia Looker Studio (Tim Hortons)
-* **URL Reporte Base Tim Hortons:** [https://datastudio.google.com/u/0/reporting/c6e89780-1db6-4a4e-948c-dbaa6f0839d5/page/p_s71dlbcxnd/edit](https://datastudio.google.com/u/0/reporting/c6e89780-1db6-4a4e-948c-dbaa6f0839d5/page/p_s71dlbcxnd/edit)
-* **Dataset Referencia:** `timhorton-loyaltymx.Loyalty`
+### C. URLs de Looker Studio
+* **Reporte Papa John's Ecuador (Actual):** [https://datastudio.google.com/u/0/reporting/a87bbad6-0d47-4858-99e4-8e734e4018de/page/p_s71dlbcxnd/edit](https://datastudio.google.com/u/0/reporting/a87bbad6-0d47-4858-99e4-8e734e4018de/page/p_s71dlbcxnd/edit)
+* **Reporte Tim Hortons (Referencia):** [https://datastudio.google.com/u/0/reporting/c6e89780-1db6-4a4e-948c-dbaa6f0839d5/page/p_s71dlbcxnd/edit](https://datastudio.google.com/u/0/reporting/c6e89780-1db6-4a4e-948c-dbaa6f0839d5/page/p_s71dlbcxnd/edit)
 
 ---
 
-## 🏗️ 4. Arquitectura y Decisiones Técnicas
-| Fecha | Decisión | Razón / Justificación | Estado |
-| :--- | :--- | :--- | :--- |
-| 2026-09-18 | Inicialización del repositorio y memoria | Establecer control de versiones con Git y trazabilidad desde el inicio | ✅ Completado |
-| 2026-09-18 | Pipeline SQL Server -> BigQuery | Enfoque serverless, escalable y modular con soporte de tipado estricto PyArrow | ✅ Completado |
-| 2026-09-18 | Replicación 1:1 de vistas analíticas de Tim Hortons Loyalty | Estandarización institucional del modelo de lealtad para Papa John's Ecuador | ✅ Completado |
-| 2026-09-18 | Adaptación de tipos de fecha y zonas horarias | SQL Server usa datetimes nativos; se alinearon a `TIMESTAMP` en BigQuery y `America/Guayaquil` | ✅ Completado |
-| 2026-09-18 | Capa analítica en Looker Studio | Reutilización directa del dashboard de Tim Hortons mediante sustitución de fuentes | ✅ Listo para clonar |
+## 🏗️ 5. Arquitectura Final del Dashboard (3 Páginas)
+
+### 📄 Página 1: Resumen Ejecutivo & Adopción del Programa
+* **KPIs Superiores (Fuente: `vw_Clientes_Adopcion_KPIs`):**
+  * Clientes: `Total (3.373) = Activos (679) + Inactivos (2.694)`
+  * Puntos: `Disponibles (26.414) = Acumulados (2.069) + Bono (26.027) - Redimidos (1.682)`
+* **Fila de Inversión y Ticket:**
+  * Tarjeta `Ticket Promedio ($32.25)`
+  * Control de Entrada `Inversión Publicidad ($1,000)` ➔ Tarjeta `ROAS (27.67x)` con semáforo condicional (>6x Verde, 3-6x Amarillo, <3x Rojo).
+* **Gráficos de Recurrencia:**
+  * Donut `% Recurrencia`: `Recurrente (10.1%)`, `Primera Compra (89.9%)`, `Sin Compra`.
+  * Barras `Segmentos de Frecuencia`: `Nuevo (613)`, `Frecuente (63)`, `VIP (6)`.
+
+### 📄 Página 2: Rendimiento Comercial & Puntos
+* **Ventas y Sucursales (Fuente: `vw_Transacciones`):**
+  * `Transacciones por Mes` y `Monto Promedio por Transacción por Mes`.
+  * `Ventas Totales por Sucursal ($)` (Naciones Unidas: $27,668.32).
+* **Dinámica de Puntos:**
+  * `Puntos Redimidos por Mes`.
+  * `Tabla de Canjes / Beneficios`: Clientes ordenados por puntos redimidos.
+
+### 📄 Página 3: Base de Clientes & Vigencia
+* **Filtros Superiores:**
+  * Buscador: `NombreCompleto` (tipo contiene).
+  * Menús Desplegables: `EstadoVigenciaPuntos` y `SegmentoRecurrencia`.
+  * Rango de Fechas: `FechaRegistro`.
+* **Tabla Detallada:**
+  * Columnas: `Nombre`, `Email`, `Telefono`, `Fecha registro`, `Segmento`, `Estado puntos`, `Compras`, `Total Gastado ($)`, `Ticket Prom. ($)`, `Puntos Saldo`, `Puntos Redimidos`, `Puntos Ganados`.
+  * Paginación 50 filas por página y totales automáticos en pie de tabla.
 
 ---
 
-## 📋 5. Registro de Sesiones y Avances (Log de Trabajo)
+## 🛠️ 6. Ejecución Manual y Comandos Clave
 
-### 🗓️ Sesión 1 — 18 de Septiembre de 2026
-* **Acciones realizadas:**
-  1. **Inicialización y Control de Versiones:**
-     * Inicialización del repositorio Git local y conexión al repositorio remoto [`https://github.com/Mly127/PapaJohnsEc`](https://github.com/Mly127/PapaJohnsEc).
-     * Configuración de `.gitignore`, `README.md` y `MEMORY.md`.
-  2. **Análisis del Modelo de Referencia (Tim Hortons):**
-     * Conexión a `timhorton-loyaltymx.Loyalty` en BigQuery y volcado completo de DDLs y consultas de las 8 vistas analíticas en `references/timhortons_loyalty_structure.sql`.
-  3. **Conexión y Mapeo de SQL Server (`SBPAPAJOHNS`):**
-     * Conexión validada a `192.168.20.68:1433`.
-     * Mapeo de tablas: `Accounts`, `RetailTransactionHeaders`, `RetailTransactionDetails`, `CashMovements` (como `RetailTransactionCash`), `Bonus`, `SubEntities` (como `SubEntity`), `SRewards` (+ `Benefits`), `RewardRedemptions` y `TransactionTypes`.
-  4. **Dataset y Pipeline en BigQuery:**
-     * Creación del dataset `papajohnsec.papajohns_loyalty_ec`.
-     * Carga y validación del 100% de los datos:
-       * `Accounts`: 3,372 filas
-       * `Bonus`: 304 filas
-       * `RetailTransactionCash`: 1 fila
-       * `RetailTransactionDetails`: 1,027 filas
-       * `RetailTransactionHeaders`: 858 filas
-       * `RewardRedemptions`: 0 filas
-       * `SRewards`: 3 filas
-       * `SubEntity`: 31 filas
-       * `TransactionTypes`: 2 filas
-  5. **Despliegue y Prueba de 8 Vistas Analíticas:**
-     * `vw_Clientes`: 3,372 filas
-     * `vw_ClientesDetalles`: 866 filas
-     * `vw_Transacciones`: 858 filas
-     * `vw_Puntos`: 858 filas
-     * `vw_PuntosBono`: 304 filas
-     * `vw_Canjes`: 0 filas
-     * `vw_Cash`: 1 fila
-     * `vw_wallet_txn_base`: 1 fila
-  6. **Código de Cloud Function y Automatización:**
-     * Código modular en `functions/extract_loyalty/` (`main.py`, `database.py`, `bigquery_loader.py`, `config.py`, `requirements.txt`).
-     * Scripts de despliegue en `scripts/deploy_function.ps1`, `scripts/deploy_function.sh`, `scripts/create_views.py` y `scripts/sync_data.py`.
-  7. **Looker Studio:**
-     * Documentación y validación del procedimiento de clonación 1:1 desde el reporte de Tim Hortons (`c6e89780-1db6-4a4e-948c-dbaa6f0839d5`).
+```powershell
+# 1. Autenticar en Google Cloud (si expiran credenciales)
+gcloud auth application-default login
 
-### 🗓️ Sesión 2 — 21 de Septiembre de 2026
-* **Sincronización y Actualización de Datos:**
-  * Reautenticación exitosa de ADC con `melissah@loymark.com` y asignación de quota project a `papajohnsec`.
-  * Creación del script operacional [`scripts/sync_data.py`](./scripts/sync_data.py).
-  * Ejecución exitosa de la sincronización completa (tiempo total: 68.54s):
-    * `Accounts`: 3,373 filas (+1 nuevo registro)
-    * `Bonus`: 305 filas (+1 nuevo bono)
-    * `RetailTransactionCash`: 1 fila
-    * `RetailTransactionDetails`: 1,027 filas
-    * `RetailTransactionHeaders`: 858 filas
-    * `RewardRedemptions`: 0 filas
-    * `SRewards`: 3 filas
-    * `SubEntity`: 31 filas
-    * `TransactionTypes`: 2 filas
-  * Las 8 vistas analíticas en BigQuery quedan automáticamente actualizadas con la nueva información.
+# 2. Configurar proyecto de cuota
+gcloud auth application-default set-quota-project papajohnsec
 
----
+# 3. Sincronizar datos (SQL Server -> BigQuery)
+python "C:\Repositorios\PapaJohnsEc\scripts\sync_data.py"
 
-## 🗺️ 6. Mapeo de Vistas a Páginas de Looker Studio
-
-| Vista BigQuery | Fuente de Datos Homóloga | Página / Propósito en Dashboard |
-| :--- | :--- | :--- |
-| **`vw_Clientes`** | `timhorton-loyaltymx.Loyalty.vw_Clientes` | **Página 1: Resumen General de Clientes** (Registros, activos/inactivos, saldos acumulados de puntos y cash). |
-| **`vw_ClientesDetalles`** | `timhorton-loyaltymx.Loyalty.vw_ClientesDetalles` | **Página 2: Comportamiento y Frecuencia** (Ticket promedio, frecuencia de compra, puntos generados por cliente). |
-| **`vw_Transacciones`** | `timhorton-loyaltymx.Loyalty.vw_Transacciones` | **Página 3: Ventas por Sucursal** (Ventas totales, descuentos, transacciones por tienda, fecha y hora). |
-| **`vw_Puntos`** | `timhorton-loyaltymx.Loyalty.vw_Puntos` | **Página 4: Programa de Puntos** (Puntos acumulados vs redimidos vs vencidos). |
-| **`vw_PuntosBono`** | `timhorton-loyaltymx.Loyalty.vw_PuntosBono` | **Página 4 (Detalle): Bonificaciones** (Bonos promocionales y campañas de activación). |
-| **`vw_Canjes`** | `timhorton-loyaltymx.Loyalty.vw_Canjes` | **Página 5: Catálogo y Redenciones** (Premios más solicitados, puntos invertidos en canjes). |
-| **`vw_Cash`** | `timhorton-loyaltymx.Loyalty.vw_Cash` | **Página 6: Billetera Digital** (Ingresos vs egresos de saldo en wallet). |
-| **`vw_wallet_txn_base`**| `timhorton-loyaltymx.Loyalty.vw_wallet_txn_base` | **Página 6 (Detalle): Ledger Transaccional** (Histórico y evolución de saldo de saldo de billetera). |
-
----
-
-## 🚀 7. Guía Rápida para Clonar el Reporte de Looker Studio
-1. Abrir el reporte base de Tim Hortons: [Looker Studio Link](https://datastudio.google.com/u/0/reporting/c6e89780-1db6-4a4e-948c-dbaa6f0839d5/page/p_s71dlbcxnd/edit).
-2. Hacer clic en **⋮ (Más opciones)** > **Hacer una copia**.
-3. Reemplazar cada una de las 8 fuentes de datos seleccionando:
-   * **Conector:** BigQuery
-   * **Proyecto:** `papajohnsec`
-   * **Dataset:** `papajohns_loyalty_ec`
-   * **Vista:** La vista con el mismo nombre.
-4. Hacer clic en **Copiar informe**.
-5. Cambiar el nombre a **Papa John's Ecuador - Loyalty Dashboard** y ajustar logotipos/colores.
+# 4. Desplegar / actualizar vistas analíticas
+python "C:\Repositorios\PapaJohnsEc\scripts\create_views.py"
+```
